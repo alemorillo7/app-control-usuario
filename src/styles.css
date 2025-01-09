@@ -1,0 +1,323 @@
+/* Estilos generales */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Estilos para el Navbar */
+.navbar-brand-custom {
+    font-size: 24px;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif; /* Fuente moderna */
+    color: transparent; /* Texto transparente para aplicar el gradiente */
+    background: linear-gradient(90deg, #00ff0d, #00c6ff); /* Gradiente verde-azul */
+    -webkit-background-clip: text; /* Aplicar gradiente al texto */
+    background-clip: text;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil para profundidad */
+    padding: 10px 20px; /* Espaciado interno */
+    border: 2px solid black; /* Borde transparente inicial */
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2); /* Sombra exterior */
+    transition: all 0.3s ease; /* Transición suave para todos los efectos */
+    position: relative; /* Para el efecto de brillo */
+    overflow: hidden; /* Para ocultar el desbordamiento del efecto de brillo */
+}
+
+.navbar-brand-custom::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300%;
+    height: 300%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4), transparent 70%); /* Efecto de brillo */
+    transform: translate(-50%, -50%) rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.navbar-brand-custom:hover {
+    transform: scale(1.05); /* Efecto de escala al pasar el mouse */
+    box-shadow: 0 8px 12px rgba(0, 123, 255, 0.3); /* Sombra más pronunciada */
+    border-color: #00ff0d; /* Borde verde al pasar el mouse */
+}
+
+.navbar-brand-custom:hover::before {
+    opacity: 1; /* Mostrar el efecto de brillo al pasar el mouse */
+}
+.nav-link-custom {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333 !important;
+    margin: 0 10px;
+    transition: color 0.3s ease;
+}
+
+.nav-link-custom:hover {
+    color: #007bff !important;
+}
+
+/* Estilos responsivos para el Navbar */
+@media (max-width: 768px) {
+    .navbar-brand-custom {
+        font-size: 20px;
+    }
+
+    .nav-link-custom {
+        font-size: 14px;
+        margin: 5px 0;
+    }
+
+    .navbar-collapse {
+        background-color: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Estilos para el contenedor principal */
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #010102;
+    margin-bottom: 30px;
+    font-weight: 700; /* Más peso para un impacto visual */
+    font-size: 2rem; /* Tamaño grande y llamativo */
+    font-family: 'Poppins', sans-serif; /* Fuente moderna */
+    background: linear-gradient(90deg, #c4e6c4, #0a0707); /* Fondo con gradiente */
+    -webkit-background-clip: text; /* Aplicar gradiente al texto */
+    -webkit-text-fill-color: transparent; /* Hacer el texto transparente */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil para profundidad */
+    padding: 10px 20px; /* Espaciado interno */
+  
+}
+
+/* Estilos para el buscador */
+.search-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.search-input {
+    width: 70%;
+    padding: 10px;
+    border: 2px solid #007bff;
+    border-radius: 5px 0 0 5px;
+    font-size: 16px;
+    outline: none;
+}
+
+.search-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos para los resultados */
+.results-container {
+    margin-top: 20px;
+}
+
+.user-card {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.user-email {
+    font-size: 14px;
+    color: #666;
+}
+
+/* Estilos para mensajes de error o sin resultados */
+.no-results {
+    text-align: center;
+    color: #dc3545;
+    font-size: 18px;
+    margin-top: 20px;
+}
+
+/* Estilos generales para la Card */
+.custom-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos para el formulario */
+.form-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.form-input {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    outline: none;
+}
+
+/* Estilos para el botón de búsqueda */
+.search-button {
+    background-color: #007bff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos para los mensajes de error */
+.error-message {
+    font-size: 14px;
+    font-weight: 500;
+    color: #dc3545;
+}
+
+/* Estilos para la sección de información del usuario */
+.user-info-card {
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-text {
+    font-size: 14px;
+    font-weight: 400;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Estilos para el botón de entregar bolsón */
+.deliver-button {
+    background-color: #28a745;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.deliver-button:hover {
+    background-color: #218838;
+}
+
+/* Estilos para el Alert de confirmación */
+.confirmation-alert {
+    border-radius: 12px;
+    background-color: #e2f3ff;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.alert-heading {
+    font-size: 16px;
+    font-weight: 600;
+    color: #004085;
+}
+
+.alert-text {
+    font-size: 14px;
+    font-weight: 400;
+    color: #004085;
+}
+
+.confirm-button {
+    background-color: #28a745;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.confirm-button:hover {
+    background-color: #218838;
+}
+
+.cancel-button {
+    background-color: #dc3545;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.cancel-button:hover {
+    background-color: #c82333;
+}
