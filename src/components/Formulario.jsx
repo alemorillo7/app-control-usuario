@@ -57,7 +57,7 @@ const Formulario = () => {
             setDni("");
             setDireccion("");
             setObservacion("");
-        // eslint-disable-next-line no-unused-vars
+            // eslint-disable-next-line no-unused-vars
         } catch (err) {
             setError("Error al agregar usuario.");
         }
@@ -71,7 +71,7 @@ const Formulario = () => {
                 </Card.Title>
                 <Form>
                     <Form.Group className="mb-3">
-                        <Form.Label>Nombre</Form.Label>
+                        <Form.Label>Nombre*</Form.Label>
                         <Form.Control
                             type="text"
                             value={nombre}
@@ -82,7 +82,7 @@ const Formulario = () => {
                         />
                     </Form.Group>
                     <Form.Group className="mb-3">
-                        <Form.Label>Apellido</Form.Label>
+                        <Form.Label>Apellido*</Form.Label>
                         <Form.Control
                             type="text"
                             value={apellido}
@@ -99,7 +99,7 @@ const Formulario = () => {
                             value={dni}
                             onChange={(e) => setDni(e.target.value)}
                             placeholder="Ingrese DNI"
-                            required
+                            // required
                             style={{ borderRadius: "10px" }}
                         />
                     </Form.Group>
@@ -130,6 +130,9 @@ const Formulario = () => {
                     >
                         Agregar Usuario
                     </Button>
+                    <p className="required-fields-message">
+                        <span className="required-icon">*</span> son campos requeridos
+                    </p>
                 </Form>
                 {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
                 {mensaje && <Alert variant="success" className="mt-3">{mensaje}</Alert>}

@@ -321,3 +321,52 @@ h1 {
 .cancel-button:hover {
     background-color: #c82333;
 }
+
+
+ /* ESTILOS PARA EL TEXTO BIBLICO */
+
+ .bible-verse {
+    text-align: center;
+    font-family: 'Merriweather', serif;
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    max-width: 600px;
+    background-color: #f8f9fa;
+    border-left: 5px solid #3498db;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    line-height: 1.6;
+}
+
+.verse-text {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.verse-reference {
+    display: block;
+    font-size: 1rem;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+/* estilo al * */
+.required-fields-message {
+    font-size: 0.9rem; /* Tamaño de fuente pequeño */
+    color: #6c757d; /* Color gris suave */
+    margin-top: 0.5rem; /* Espaciado superior */
+    margin-bottom: 1rem; /* Espaciado inferior */
+    font-family: 'Poppins', sans-serif; /* Fuente moderna */
+    display: flex; /* Para alinear el ícono con el texto */
+    align-items: center; /* Centrar verticalmente */
+}
+
+.required-icon {
+    color: #dc3545; /* Color rojo para resaltar */
+    font-size: 1.2rem; /* Tamaño más grande para el asterisco */
+    margin-right: 0.5rem; /* Espaciado entre el ícono y el texto */
+    font-weight: bold; /* Negrita para mayor visibilidad */
+}
