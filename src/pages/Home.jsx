@@ -8,7 +8,7 @@ const Home = () => {
             {/* <Buscador /> */}
             <h4 className="bible-verse">
                 <span className="verse-text">Mas bienaventurado es dar que recibir.</span>
-                <span className="verse-reference">Ech 20:35</span>
+                <span className="verse-reference">Hech 20:35</span>
             </h4>
         </div>
     );

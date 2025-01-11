@@ -18,6 +18,9 @@ const NavbarComponent = () => {
                     <Nav.Link as={Link} to="/agregar" className="nav-link-custom">
                         Agregar Usuario
                     </Nav.Link>
+                    <Nav.Link as={Link} to="/informacion" className="nav-link-custom">
+                        Informacion
+                    </Nav.Link>
                 </Nav>
             </Navbar.Collapse>
         </Container>
