@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, Spinner, Alert } from "react-bootstrap";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../config/firebase";
 
 const InformacionBolsones = () => {
     const [totalFamilias, setTotalFamilias] = useState(0); // Total de familias asistidas

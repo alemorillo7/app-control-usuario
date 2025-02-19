@@ -89,19 +89,108 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
+/* Título principal con efectos 3D */
+.titulo-buscador {
     text-align: center;
-    color: #010102;
     margin-bottom: 30px;
-    font-weight: 700; /* Más peso para un impacto visual */
-    font-size: 2rem; /* Tamaño grande y llamativo */
+    font-weight: 900; /* Peso más fuerte para mayor impacto */
+    /* font-size: clamp(2rem, 5vw, 3.5rem); Escala responsiva más grande */
     font-family: 'Poppins', sans-serif; /* Fuente moderna */
-    background: linear-gradient(90deg, #c4e6c4, #0a0707); /* Fondo con gradiente */
+    letter-spacing: 1.5px; /* Espaciado entre letras ajustado */
+    background: linear-gradient(90deg, #1e1e2f, #3a3a52, #1e1e2f); /* Degradado oscuro y elegante */
     -webkit-background-clip: text; /* Aplicar gradiente al texto */
     -webkit-text-fill-color: transparent; /* Hacer el texto transparente */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil para profundidad */
-    padding: 10px 20px; /* Espaciado interno */
-  
+    text-shadow: 2px 2px 10px rgba(255, 255, 255, 0.3), /* Brillo sutil */
+                 0 0 20px rgba(100, 100, 255, 0.2); /* Resplandor azul tenue */
+    padding: 20px 30px; /* Espaciado interno ampliado */
+    border-radius: 15px; /* Bordes redondeados más suaves */
+    position: relative; /* Para posicionar elementos adicionales */
+    overflow: hidden; /* Para manejar efectos visuales */
+    animation: glow-dark 3s infinite alternate; /* Animación de brillo oscuro */
+    transform-style: preserve-3d; /* Habilitar efectos 3D */
+    perspective: 1000px; /* Profundidad 3D */
+}
+
+/* Animación de brillo oscuro */
+@keyframes glow-dark {
+    0% {
+        text-shadow: 2px 2px 10px rgba(255, 255, 255, 0.3),
+                     0 0 20px rgba(100, 100, 255, 0.2);
+    }
+    100% {
+        text-shadow: 4px 4px 20px rgba(255, 255, 255, 0.5),
+                     0 0 40px rgba(100, 100, 255, 0.4);
+    }
+}
+
+/* Efecto de rotación 3D en hover */
+.titulo-buscador:hover {
+    transform: rotateX(10deg) rotateY(20deg); /* Rotación 3D */
+    transition: transform 0.5s ease-in-out; /* Transición suave */
+}
+
+/* Efecto de partículas flotantes oscuro */
+.titulo-buscador::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 10%, transparent 10.01%);
+    transform: scale(10);
+    opacity: 0;
+    pointer-events: none;
+    animation: particle-effect-dark 3s infinite;
+}
+
+@keyframes particle-effect-dark {
+    0% {
+        transform: scale(0);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(10);
+        opacity: 0;
+    }
+}
+
+/* Fondo oscuro para el contenedor del título */
+.contenedor-titulo {
+    background: linear-gradient(135deg, #121212, #1e1e2f); /* Fondo oscuro con degradado */
+    padding: 40px 20px; /* Espaciado interno amplio */
+    border-radius: 20px; /* Bordes redondeados */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); /* Sombra profunda */
+    margin: 20px auto; /* Margen centrado */
+    max-width: 800px; /* Ancho máximo */
+    position: relative;
+    overflow: hidden;
+    perspective: 1000px; /* Profundidad 3D */
+}
+
+/* Efecto de ondas expansivas */
+.contenedor-titulo::after {
+    content: '';
+    position: absolute;
+    bottom: -50%;
+    left: 50%;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translateX(-50%) scale(0);
+    animation: ripple-effect 4s infinite;
+}
+
+@keyframes ripple-effect {
+    0% {
+        transform: translateX(-50%) scale(0);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateX(-50%) scale(5);
+        opacity: 0;
+    }
 }
 
 /* Estilos para el buscador */
@@ -370,3 +459,35 @@ h1 {
     margin-right: 0.5rem; /* Espaciado entre el ícono y el texto */
     font-weight: bold; /* Negrita para mayor visibilidad */
 }
+
+/* Estilos para el botón de inicio de sesión con Google */
+.google-login-button-custom {
+    display: flex;
+    align-items: center;
+    background-color: white; /* Fondo blanco */
+    color: black; /* Texto negro */
+    border: 2px solid black; /* Borde negro */
+    border-radius: 25px; /* Bordes redondeados */
+    padding: 6px 12px; /* Tamaño más pequeño */
+    font-size: 14px; /* Tamaño de fuente más pequeño */
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+  }
+  
+  .google-login-button-custom:hover {
+    background-color: #f8f9fa; /* Color de fondo más claro al pasar el mouse */
+    transform: translateY(-2px); /* Efecto de elevación */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
+  }
+  
+  .google-login-button-custom:active {
+    transform: translateY(0); /* Restablecer la elevación al hacer clic */
+  }
+  
+  .google-logo {
+    width: 18px; /* Tamaño más pequeño para el logo */
+    height: 18px;
+    margin-right: 8px;
+  }

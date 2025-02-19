@@ -1,10 +1,11 @@
-import { useState, useRef } from "react";
+/* eslint-disable no-unused-vars */
+import { useState, useRef, useEffect } from "react"; // Importa useEffect
 import { Button, Form, Card, Alert } from "react-bootstrap";
 import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../config/firebase";
 
 const Buscador = () => {
-    const [tipoBusqueda, setTipoBusqueda] = useState("dni"); // Estado para el tipo de búsqueda
+    const [tipoBusqueda, setTipoBusqueda] = useState("dni");
     const [dni, setDni] = useState("");
     const [nombre, setNombre] = useState("");
     const [apellido, setApellido] = useState("");
@@ -15,16 +16,26 @@ const Buscador = () => {
     // Referencia para el input de DNI
     const dniInputRef = useRef(null);
 
+    // Referencia para el contenedor de la información del usuario
+    const userInfoRef = useRef(null);
+
+    // Referencia para el Alert de confirmación
+    const confirmacionRef = useRef(null);
+
+    // Efecto para desplazar hacia el Alert de confirmación cuando se muestra
+    useEffect(() => {
+        if (showConfirmacion && confirmacionRef.current) {
+            confirmacionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }, [showConfirmacion]); // Se ejecuta cuando showConfirmacion cambia
+
     const buscarPersona = async () => {
         try {
             let q;
             if (tipoBusqueda === "dni") {
-                // Buscar por DNI (sin cambios)
                 q = query(collection(db, "personas"), where("dni", "==", dni));
             } else {
-                // Buscar por nombre y apellido (insensible a mayúsculas/minúsculas)
-                const nombreCompletoBusqueda = `${apellido} ${nombre}`.toLowerCase().trim(); // Formato: "apellido nombre"
-
+                const nombreCompletoBusqueda = `${apellido} ${nombre}`.toLowerCase().trim();
                 q = query(collection(db, "personas"));
 
                 const querySnapshot = await getDocs(q);
@@ -35,7 +46,7 @@ const Buscador = () => {
                     let personaEncontrada = null;
                     querySnapshot.forEach((doc) => {
                         const data = doc.data();
-                        const nombreCompletoFirestore = data.nombre.toLowerCase().trim(); // Formato: "apellido nombre"
+                        const nombreCompletoFirestore = data.nombre.toLowerCase().trim();
 
                         if (nombreCompletoFirestore === nombreCompletoBusqueda) {
                             const bolsones = typeof data.bolsones === "number" ? data.bolsones : 1;
@@ -51,10 +62,9 @@ const Buscador = () => {
                         setPersona(null);
                     }
                 }
-                return; // Salir de la función después de manejar la búsqueda por nombre y apellido
+                return;
             }
 
-            // Si la búsqueda es por DNI, continuar con la lógica original
             const querySnapshot = await getDocs(q);
             if (querySnapshot.empty) {
                 setError("No se encontró ninguna persona con los datos proporcionados.");
@@ -67,7 +77,13 @@ const Buscador = () => {
                 });
                 setError("");
             }
-            // eslint-disable-next-line no-unused-vars
+
+            // Desplazar la pantalla hacia la sección de la persona encontrada
+            setTimeout(() => {
+                if (userInfoRef.current) {
+                    userInfoRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+            }, 100); // Pequeño retraso para asegurar que el contenido esté renderizado
         } catch (error) {
             setError("Error al buscar persona.");
         }
@@ -83,26 +99,24 @@ const Buscador = () => {
                 fechaUltimaEntrega: new Date().toLocaleDateString(),
             });
 
-            // Limpiar estados y enfocar el input de DNI
             setDni("");
             setNombre("");
             setApellido("");
             setPersona(null);
             setShowConfirmacion(false);
-            dniInputRef.current.focus(); // Enfocar el input de DNI
+            dniInputRef.current.focus();
         } catch (error) {
             console.error("Error al actualizar la entrega: ", error);
         }
     };
 
     const handleCancelarEntrega = () => {
-        // Limpiar estados y enfocar el input de DNI
         setDni("");
         setNombre("");
         setApellido("");
         setPersona(null);
         setShowConfirmacion(false);
-        dniInputRef.current.focus(); // Enfocar el input de DNI
+        dniInputRef.current.focus();
     };
 
     return (
@@ -166,7 +180,7 @@ const Buscador = () => {
                 {error && <p className="text-danger mt-3 error-message">{error}</p>}
 
                 {persona && (
-                    <div className="mt-3 user-info-card">
+                    <div ref={userInfoRef} className="mt-3 user-info-card">
                         <p className="info-text" style={{ fontWeight: 500 }}>Nombre: {persona.nombre} {persona.apellido}</p>
                         <p className="info-text" style={{ fontWeight: 500 }}>Dirección: {persona.direccion}</p>
                         <p className="info-text" style={{ fontWeight: 500 }}>Última Fecha: {persona.fechaUltimaEntrega}</p>
@@ -181,7 +195,7 @@ const Buscador = () => {
                 )}
 
                 {showConfirmacion && (
-                    <Alert variant="info" className="mt-3 confirmation-alert">
+                    <Alert ref={confirmacionRef} variant="info" className="mt-3 confirmation-alert">
                         <Alert.Heading className="alert-heading">Confirmar Entrega</Alert.Heading>
                         <p className="alert-text">¿Estás seguro de que deseas confirmar la entrega del bolsón?</p>
                         <Button variant="success" onClick={handleConfirmarEntrega} className="confirm-button">
