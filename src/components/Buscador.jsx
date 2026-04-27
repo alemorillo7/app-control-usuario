@@ -1,11 +1,15 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { Form } from "react-bootstrap";
 import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "../config/firebase";
-import "../estilos/buscador.css"; // Importar los estilos modernos
+import { Search, User, MapPin, Calendar, Package, CheckCircle, XCircle, AlertTriangle, Loader2, Info, UserSearch, ChevronRight } from "lucide-react";
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
 
 const BuscadorModerno = () => {
-    // Estados principales
     const [tipoBusqueda, setTipoBusqueda] = useState("dni");
     const [dni, setDni] = useState("");
     const [nombre, setNombre] = useState("");
@@ -13,56 +17,17 @@ const BuscadorModerno = () => {
     const [persona, setPersona] = useState(null);
     const [error, setError] = useState("");
     const [showConfirmacion, setShowConfirmacion] = useState(false);
-    
-    // Estados de rendimiento
     const [isLoading, setIsLoading] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
 
-    // Referencias para scroll y focus
     const dniInputRef = useRef(null);
-    const userInfoRef = useRef(null);
-    const confirmacionRef = useRef(null);
-    const searchTimeoutRef = useRef(null);
 
-    // Efecto para scroll suave al mostrar confirmación
-    useEffect(() => {
-        if (showConfirmacion && confirmacionRef.current) {
-            const timer = setTimeout(() => {
-                confirmacionRef.current.scrollIntoView({ 
-                    behavior: "smooth", 
-                    block: "center" 
-                });
-            }, 100);
-            return () => clearTimeout(timer);
-        }
-    }, [showConfirmacion]);
-
-    // Efecto para scroll suave al mostrar información del usuario
-    useEffect(() => {
-        if (persona && userInfoRef.current) {
-            const timer = setTimeout(() => {
-                userInfoRef.current.scrollIntoView({ 
-                    behavior: "smooth", 
-                    block: "start" 
-                });
-            }, 150);
-            return () => clearTimeout(timer);
-        }
-    }, [persona]);
-
-    // Función de búsqueda optimizada con debounce
     const buscarPersonaOptimizada = useCallback(async () => {
-        // Validaciones previas
         if (tipoBusqueda === "dni" && !dni.trim()) {
-            setError("Por favor, ingrese un DNI válido.");
+            setError("Ingrese un DNI válido.");
             return;
         }
         
-        if (tipoBusqueda === "nombreApellido" && (!nombre.trim() || !apellido.trim())) {
-            setError("Por favor, ingrese nombre y apellido.");
-            return;
-        }
-
         setIsLoading(true);
         setError("");
         setPersona(null);
@@ -74,323 +39,218 @@ const BuscadorModerno = () => {
             if (tipoBusqueda === "dni") {
                 q = query(collection(db, "personas"), where("dni", "==", dni.trim()));
                 const querySnapshot = await getDocs(q);
-                
                 if (!querySnapshot.empty) {
                     querySnapshot.forEach((doc) => {
-                        const data = doc.data();
-                        const bolsones = typeof data.bolsones === "number" ? data.bolsones : 1;
-                        personaEncontrada = { id: doc.id, ...data, bolsones };
+                        personaEncontrada = { id: doc.id, ...doc.data() };
                     });
                 }
             } else {
-                // Búsqueda por nombre y apellido optimizada
-                const nombreBusqueda = nombre.trim().toLowerCase();
-                const apellidoBusqueda = apellido.trim().toLowerCase();
-                
                 q = query(collection(db, "personas"));
                 const querySnapshot = await getDocs(q);
-
-                if (!querySnapshot.empty) {
-                    querySnapshot.forEach((doc) => {
-                        const data = doc.data();
-                        const nombreFirestore = data.nombre?.toLowerCase().trim() || "";
-                        const apellidoFirestore = data.apellido?.toLowerCase().trim() || "";
-
-                        if (nombreFirestore === nombreBusqueda && apellidoFirestore === apellidoBusqueda) {
-                            const bolsones = typeof data.bolsones === "number" ? data.bolsones : 1;
-                            personaEncontrada = { id: doc.id, ...data, bolsones };
-                        }
-                    });
-                }
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.nombre?.toLowerCase().trim() === nombre.trim().toLowerCase() && 
+                        data.apellido?.toLowerCase().trim() === apellido.trim().toLowerCase()) {
+                        personaEncontrada = { id: doc.id, ...data };
+                    }
+                });
             }
 
             if (personaEncontrada) {
                 setPersona(personaEncontrada);
-                setError("");
             } else {
-                setError("No se encontró ninguna persona con los datos proporcionados.");
-                setPersona(null);
+                setError("No se encontró el registro 😕");
             }
-
         } catch (error) {
-            console.error("Error al buscar persona:", error);
-            setError("Error al realizar la búsqueda. Por favor, intente nuevamente.");
-            setPersona(null);
+            setError("Error de conexión 📡");
         } finally {
             setIsLoading(false);
         }
     }, [tipoBusqueda, dni, nombre, apellido]);
 
-    // Función de búsqueda con debounce
-    const buscarPersona = useCallback(() => {
-        if (searchTimeoutRef.current) {
-            clearTimeout(searchTimeoutRef.current);
-        }
-        
-        searchTimeoutRef.current = setTimeout(() => {
-            buscarPersonaOptimizada();
-        }, 300);
-    }, [buscarPersonaOptimizada]);
-
-    // Función para confirmar entrega optimizada
     const handleConfirmarEntrega = useCallback(async () => {
         if (!persona?.id) return;
-
         setIsUpdating(true);
         try {
             const personaRef = doc(db, "personas", persona.id);
-            const bolsonesActuales = typeof persona.bolsones === "number" ? persona.bolsones : 1;
-
             await updateDoc(personaRef, {
-                bolsones: bolsonesActuales + 1,
+                bolsones: (persona.bolsones || 0) + 1,
                 fechaUltimaEntrega: new Date().toLocaleDateString(),
             });
-
-            // Limpiar formulario y estados
-            setDni("");
-            setNombre("");
-            setApellido("");
             setPersona(null);
             setShowConfirmacion(false);
             setError("");
-            
-            // Focus en el input principal
-            setTimeout(() => {
-                if (dniInputRef.current) {
-                    dniInputRef.current.focus();
-                }
-            }, 100);
-
+            alert("¡Entrega registrada con éxito! ✅");
         } catch (error) {
-            console.error("Error al actualizar la entrega:", error);
-            setError("Error al confirmar la entrega. Por favor, intente nuevamente.");
+            setError("Error al confirmar.");
         } finally {
             setIsUpdating(false);
         }
     }, [persona]);
 
-    // Función para cancelar entrega
-    const handleCancelarEntrega = useCallback(() => {
-        setDni("");
-        setNombre("");
-        setApellido("");
-        setPersona(null);
-        setShowConfirmacion(false);
-        setError("");
-        
-        setTimeout(() => {
-            if (dniInputRef.current) {
-                dniInputRef.current.focus();
-            }
-        }, 100);
-    }, []);
-
-    // Función para cambiar tipo de búsqueda
-    const handleTipoBusquedaChange = useCallback((e) => {
-        const nuevoTipo = e.target.value;
-        setTipoBusqueda(nuevoTipo);
-        setDni("");
-        setNombre("");
-        setApellido("");
-        setPersona(null);
-        setError("");
-        setShowConfirmacion(false);
-    }, []);
-
-    // Manejo de teclas para mejor UX
-    const handleKeyPress = useCallback((e) => {
-        if (e.key === 'Enter' && !isLoading) {
-            e.preventDefault();
-            buscarPersona();
-        }
-    }, [buscarPersona, isLoading]);
-
-    // Memoización del indicador de bolsones
-    const bolsonesIndicator = useMemo(() => {
-        if (!persona) return null;
-        
-        const bolsones = persona.bolsones || 0;
-        const isWarning = bolsones >= 5;
-        
-        return (
-            <span className={`search-bolsones-indicator ${isWarning ? 'search-bolsones-warning' : 'search-bolsones-normal'}`}>
-                {isWarning ? '⚠️' : '✅'} {bolsones} bolsones
-            </span>
-        );
-    }, [persona]);
-
-    // Cleanup de timeouts
-    useEffect(() => {
-        return () => {
-            if (searchTimeoutRef.current) {
-                clearTimeout(searchTimeoutRef.current);
-            }
-        };
-    }, []);
-
     return (
-        <div className="search-main-container">
-            {/* Título del buscador */}
-            <h2 className="search-title">
-                🔍 Buscador de Personas
-            </h2>
-
-            <Form>
-                {/* Selector de tipo de búsqueda */}
-                <div className="search-form-group">
-                    <label className="search-form-label">
-                        Tipo de búsqueda
-                    </label>
-                    <select
-                        value={tipoBusqueda}
-                        onChange={handleTipoBusquedaChange}
-                        className="search-form-select"
-                        disabled={isLoading}
-                    >
-                        <option value="dni">Buscar por DNI</option>
-                        <option value="nombreApellido">Buscar por Nombre y Apellido</option>
-                    </select>
+        <div className="min-h-screen pt-32 pb-20 px-6">
+            <div className="max-w-3xl mx-auto space-y-10 animate-fade-up">
+                {/* Header dinámico */}
+                <div className="text-center space-y-4">
+                    <div className="w-20 h-20 bg-primary-500 rounded-[2rem] flex items-center justify-center mx-auto shadow-glow rotate-3 transition-transform hover:rotate-0">
+                        <UserSearch className="w-10 h-10 text-white" />
+                    </div>
+                    <h2 className="text-5xl font-black tracking-tighter text-slate-900">
+                        Buscador <span className="text-primary-600">ADA</span> 🔍
+                    </h2>
+                    <p className="text-slate-500 font-bold text-sm uppercase tracking-[0.2em]">Encuentra y registra entregas rápidamente</p>
                 </div>
 
-                {/* Campos de búsqueda condicionales */}
-                {tipoBusqueda === "dni" ? (
-                    <div className="search-form-group">
-                        <label className="search-form-label">
-                            Número de DNI
-                        </label>
-                        <input
-                            type="text"
-                            value={dni}
-                            onChange={(e) => setDni(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            placeholder="Ingrese el número de DNI"
-                            ref={dniInputRef}
-                            className="search-form-input"
-                            disabled={isLoading}
-                            autoComplete="off"
-                        />
+                {/* Card de Búsqueda con Emojis */}
+                <div className="glass-card p-10 space-y-8 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 opacity-5">
+                        <Search className="w-32 h-32" />
                     </div>
-                ) : (
-                    <>
-                        <div className="search-form-group">
-                            <label className="search-form-label">
-                                Nombre
+                    
+                    <div className="grid md:grid-cols-2 gap-8 relative z-10">
+                        <div className="space-y-2">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-4 flex items-center gap-2">
+                                🛠️ Método
                             </label>
-                            <input
-                                type="text"
-                                value={nombre}
-                                onChange={(e) => setNombre(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                placeholder="Ingrese el nombre"
-                                className="search-form-input"
-                                disabled={isLoading}
-                                autoComplete="given-name"
-                            />
+                            <select
+                                value={tipoBusqueda}
+                                onChange={(e) => setTipoBusqueda(e.target.value)}
+                                className="input-modern bg-white/50 backdrop-blur-sm"
+                            >
+                                <option value="dni">🆔 Buscar por DNI</option>
+                                <option value="nombreApellido">👤 Nombre y Apellido</option>
+                            </select>
                         </div>
-                        <div className="search-form-group">
-                            <label className="search-form-label">
-                                Apellido
-                            </label>
-                            <input
-                                type="text"
-                                value={apellido}
-                                onChange={(e) => setApellido(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                placeholder="Ingrese el apellido"
-                                className="search-form-input"
-                                disabled={isLoading}
-                                autoComplete="family-name"
-                            />
-                        </div>
-                    </>
-                )}
 
-                {/* Botón de búsqueda */}
-                <button
-                    type="button"
-                    onClick={buscarPersona}
-                    className={`search-action-button ${isLoading ? 'search-loading' : ''}`}
-                    disabled={isLoading}
-                    aria-label="Buscar persona"
-                >
-                    {isLoading ? 'Buscando...' : '🔍 Buscar Persona'}
-                </button>
-            </Form>
-
-            {/* Mensaje de error */}
-            {error && (
-                <div className="search-error-message" role="alert">
-                    {error}
-                </div>
-            )}
-
-            {/* Información del usuario encontrado */}
-            {persona && (
-                <div ref={userInfoRef} className="search-user-info-card">
-                    <div className="search-info-text">
-                        <span className="search-info-label">👤 Nombre completo:</span>
-                        <span className="search-info-value">{persona.nombre} {persona.apellido}</span>
-                    </div>
-                    
-                    <div className="search-info-text">
-                        <span className="search-info-label">🏠 Dirección:</span>
-                        <span className="search-info-value">{persona.direccion || 'No especificada'}</span>
-                    </div>
-                    
-                    <div className="search-info-text">
-                        <span className="search-info-label">📅 Última entrega:</span>
-                        <span className="search-info-value">{persona.fechaUltimaEntrega || 'Sin registros'}</span>
-                    </div>
-                    
-                    <div className="search-info-text">
-                        <span className="search-info-label">📦 Bolsones retirados:</span>
-                        <span className="search-info-value">{bolsonesIndicator}</span>
-                    </div>
-                    
-                    <div className="search-info-text">
-                        <span className="search-info-label">📝 Observaciones:</span>
-                        <span className="search-info-value">{persona.observacion || persona.observaciones || 'Sin observaciones'}</span>
+                        {tipoBusqueda === "dni" ? (
+                            <div className="space-y-2">
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-4 flex items-center gap-2">
+                                    🔢 Número de DNI
+                                </label>
+                                <input
+                                    type="text"
+                                    value={dni}
+                                    onChange={(e) => setDni(e.target.value)}
+                                    placeholder="Escribe el DNI aquí..."
+                                    className="input-modern"
+                                    autoComplete="off"
+                                />
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-4">Nombre</label>
+                                    <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} className="input-modern" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-4">Apellido</label>
+                                    <input type="text" value={apellido} onChange={(e) => setApellido(e.target.value)} className="input-modern" />
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <button
-                        onClick={() => setShowConfirmacion(true)}
-                        className="search-deliver-button"
-                        disabled={isUpdating}
-                        aria-label="Entregar bolsón a esta persona"
+                        onClick={buscarPersonaOptimizada}
+                        className="btn-primary-3d w-full flex items-center justify-center gap-3 py-5 text-lg"
+                        disabled={isLoading}
                     >
-                        📦 Entregar Bolsón
+                        {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Search className="w-6 h-6" />}
+                        {isLoading ? 'Buscando...' : '¡Encontrar ahora! 🚀'}
                     </button>
                 </div>
-            )}
 
-            {/* Alert de confirmación */}
+                {/* Resultado Visual Impactante */}
+                {persona && (
+                    <div className="glass-card overflow-hidden animate-fade-up border-primary-200">
+                        <div className="bg-gradient-to-r from-primary-500 to-emerald-600 p-10 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div className="flex items-center gap-6">
+                                <div className="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center backdrop-blur-md border border-white/20 shadow-xl">
+                                    <User className="w-10 h-10" />
+                                </div>
+                                <div>
+                                    <h3 className="text-3xl font-black tracking-tight leading-none mb-2">{persona.nombre} {persona.apellido}</h3>
+                                    <span className="bg-black/20 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest">🆔 {persona.dni}</span>
+                                </div>
+                            </div>
+                            <div className="bg-white text-primary-600 p-6 rounded-[2rem] text-center min-w-[140px] shadow-glow">
+                                <p className="text-[10px] font-black uppercase tracking-tighter mb-1">Entregas Totales</p>
+                                <p className="text-4xl font-black">📦 {persona.bolsones || 0}</p>
+                            </div>
+                        </div>
+
+                        <div className="p-10 grid md:grid-cols-2 gap-10 bg-white/50">
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-4 group">
+                                    <div className="p-3 bg-slate-100 rounded-2xl group-hover:bg-primary-100 transition-colors">
+                                        <MapPin className="w-6 h-6 text-slate-400 group-hover:text-primary-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">📍 Ubicación</p>
+                                        <p className="text-lg font-bold text-slate-700">{persona.direccion || 'No registrada'}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4 group">
+                                    <div className="p-3 bg-slate-100 rounded-2xl group-hover:bg-primary-100 transition-colors">
+                                        <Calendar className="w-6 h-6 text-slate-400 group-hover:text-primary-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">🗓️ Última Entrega</p>
+                                        <p className="text-lg font-bold text-slate-700">{persona.fechaUltimaEntrega || 'Primera vez'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-primary-50/50 p-6 rounded-3xl border border-primary-100">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Info className="w-4 h-4 text-primary-600" />
+                                    <p className="text-[10px] font-black text-primary-600 uppercase tracking-widest">Nota Administrativa</p>
+                                </div>
+                                <p className="text-sm italic text-slate-600 leading-relaxed font-medium">
+                                    {persona.observacion || "Sin observaciones adicionales para este registro."}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="p-10 bg-slate-50/80 border-t border-slate-100">
+                            <button 
+                                onClick={() => setShowConfirmacion(true)} 
+                                className="btn-primary-3d w-full py-6 text-xl flex items-center justify-center gap-3"
+                            >
+                                <CheckCircle className="w-7 h-7" />
+                                REGISTRAR ENTREGA ✅
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {error && (
+                    <div className="bg-white/90 backdrop-blur-md border-l-8 border-red-500 p-6 rounded-3xl shadow-xl animate-fade-up">
+                        <div className="flex items-center gap-4">
+                            <div className="bg-red-100 p-2 rounded-full">
+                                <AlertTriangle className="w-6 h-6 text-red-600" />
+                            </div>
+                            <p className="font-black text-slate-800 uppercase tracking-tight">{error}</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Modal Confirmación Animado */}
             {showConfirmacion && (
-                <div ref={confirmacionRef} className="search-confirmation-alert" role="dialog" aria-labelledby="confirm-title">
-                    <h3 id="confirm-title" className="search-alert-heading">
-                        Confirmar Entrega
-                    </h3>
-                    <p className="search-alert-text">
-                        ¿Estás seguro de que deseas confirmar la entrega del bolsón a <strong>{persona?.nombre} {persona?.apellido}</strong>?
-                        <br />
-                        <small>Esta acción incrementará el contador de bolsones y actualizará la fecha de entrega.</small>
-                    </p>
-                    <div className="search-button-group">
-                        <button
-                            onClick={handleConfirmarEntrega}
-                            className={`search-confirm-button ${isUpdating ? 'search-loading' : ''}`}
-                            disabled={isUpdating}
-                            aria-label="Confirmar entrega del bolsón"
-                        >
-                            {isUpdating ? 'Procesando...' : '✅ Sí, confirmar'}
-                        </button>
-                        <button
-                            onClick={handleCancelarEntrega}
-                            className="search-cancel-button"
-                            disabled={isUpdating}
-                            aria-label="Cancelar entrega del bolsón"
-                        >
-                            ❌ No, cancelar
-                        </button>
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-xl animate-fade-in">
+                    <div className="glass-card max-w-sm w-full p-12 text-center space-y-8 relative overflow-hidden">
+                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary-500/10 rounded-full blur-3xl" />
+                        <Package className="w-20 h-20 text-primary-500 mx-auto animate-bounce" />
+                        <div className="space-y-2">
+                            <h3 className="text-3xl font-black tracking-tighter">¿Todo listo?</h3>
+                            <p className="text-slate-500 font-medium">Estás a punto de registrar un nuevo bolsón para {persona?.nombre}.</p>
+                        </div>
+                        <div className="flex gap-4">
+                            <button onClick={() => setShowConfirmacion(false)} className="btn-secondary-modern flex-1">Aún no</button>
+                            <button onClick={handleConfirmarEntrega} className="btn-primary-3d flex-1">¡Sí, listo! ✅</button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -399,4 +259,3 @@ const BuscadorModerno = () => {
 };
 
 export default BuscadorModerno;
-
