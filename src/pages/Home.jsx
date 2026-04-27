@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Search, UserPlus, BarChart3, ChevronRight, Heart, Sparkles, Quote } from "lucide-react";
 import { clsx } from "clsx";
@@ -80,24 +80,30 @@ const Home = () => {
                     </div>
                 </header>
 
-                {/* Versículo Glass Moderno */}
+                {/* Versículo Fijo Hechos 20:35 */}
                 <section className={cn(
                     "relative max-w-4xl mx-auto transition-all duration-1000 delay-500",
                     isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
                 )}>
-                    <div className="glass-card p-12 md:p-16 text-center relative group overflow-hidden">
+                    <div className="glass-card p-12 md:p-16 text-center relative group overflow-hidden border-primary-100 shadow-glow">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary-100/30 rounded-full blur-3xl -mr-16 -mt-16" />
                         
-                        <Quote className="w-12 h-12 text-primary-100 mx-auto mb-8" />
+                        <Quote className="w-10 h-10 text-primary-200 mx-auto mb-8" />
                         
                         <blockquote className="space-y-6">
-                            <p className="text-2xl md:text-4xl font-black text-slate-800 leading-tight tracking-tight">
-                                "Más bienaventurado es <span className="text-primary-500">dar que recibir</span>."
+                            <p className="text-3xl md:text-5xl font-black text-slate-800 leading-tight tracking-tight px-4 italic">
+                                "Más bienaventurado es <span className="text-primary-600">dar</span> que recibir."
                             </p>
-                            <footer className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] italic">
+                            <footer className="text-sm font-black text-primary-500 uppercase tracking-[0.2em]">
                                 — Hechos 20:35
                             </footer>
                         </blockquote>
+
+                        <div className="mt-10 flex justify-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-primary-600" />
+                            <div className="w-2 h-2 rounded-full bg-primary-200" />
+                            <div className="w-2 h-2 rounded-full bg-primary-100" />
+                        </div>
                     </div>
                 </section>
 
@@ -107,7 +113,7 @@ const Home = () => {
                         <Link 
                             key={idx} 
                             to={item.link}
-                            className="glass-card p-8 space-y-6 group animate-fade-up border-none bg-white/50"
+                            className="glass-card p-8 space-y-6 group animate-fade-up border-none bg-white/60 hover:bg-white"
                         >
                             <div className={cn(
                                 "w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-500",
